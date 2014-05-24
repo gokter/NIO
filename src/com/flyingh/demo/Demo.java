@@ -1,14 +1,57 @@
 package com.flyingh.demo;
 
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import org.junit.Test;
 
 public class Demo {
 	private static String[] strings = { "A random string value", "The product of an infinite number of monkeys", "Hey hey we're the Monkees",
 			"Opening act for the Monkees: Jimi Hendrix", "'Scuse me while I kiss this fly", "Help Me!  Help Me!", };
+
+	@Test
+	public void test5() throws IOException {
+		RandomAccessFile raf = new RandomAccessFile("D:\\oem8.log", "rw");
+		raf.seek(5000);
+		FileChannel channel = raf.getChannel();
+		System.out.println(channel.position());
+		raf.seek(5);
+		System.out.println(channel.position());
+		channel.position(100);
+		System.out.println(raf.getFilePointer());
+		channel.truncate(5);
+		System.out.println(channel.position());
+		System.out.println(raf.getFilePointer());
+		channel.truncate(1000);
+		System.out.println(channel.position());
+		System.out.println(raf.getFilePointer());
+		raf.close();
+	}
+
+	@Test
+	public void test4() throws IOException {
+		ReadableByteChannel readableByteChannel = Channels.newChannel(System.in);
+		WritableByteChannel writableByteChannel = Channels.newChannel(System.out);
+		ByteBuffer byteBuffer = ByteBuffer.allocateDirect(16 * 1024);
+		while (readableByteChannel.read(byteBuffer) != -1) {
+			byteBuffer.flip();
+			while (byteBuffer.hasRemaining()) {
+				writableByteChannel.write(byteBuffer);
+			}
+			byteBuffer.clear();
+		}
+		byteBuffer.flip();
+		while (byteBuffer.hasRemaining()) {
+			writableByteChannel.write(byteBuffer);
+		}
+	}
 
 	@Test
 	public void test3() {
